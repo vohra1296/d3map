@@ -1,75 +1,52 @@
-import React, { useState } from "react";
-import RacingBarChart from "./Components/RacingBarChart";
-import useInterval from "./useInterval";
-import "./App.css";
+import React, { useState, useCallback } from "react"
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api"
 
-const getRandomIndex = array => {
-  return Math.floor(array.length * Math.random());
+
+const containerStyle = {
+  width: '960px',
+  height: '600px'
 };
 
-function App() {
-  const [iteration, setIteration] = useState(0);
-  const [start, setStart] = useState(false);
-  const [data, setData] = useState([
-    {
-      name: "alpha",
-      value: 10,
-      color: "#f4efd3"
-    },
-    {
-      name: "beta",
-      value: 15,
-      color: "#cccccc"
-    },
-    {
-      name: "charlie",
-      value: 20,
-      color: "#c2b0c9"
-    },
-    {
-      name: "delta",
-      value: 25,
-      color: "#9656a1"
-    },
-    {
-      name: "echo",
-      value: 30,
-      color: "#fa697c"
-    },
-    {
-      name: "foxtrot",
-      value: 35,
-      color: "#fcc169"
-    }
-  ]);
+const center = {
+  lat: 43.589046,
+  lng: -79.644119
+};
 
-  useInterval(() => {
-    if (start) {
-      const randomIndex = getRandomIndex(data);
-      setData(
-        data.map((entry, index) =>
-          index === randomIndex
-            ? {
-              ...entry,
-              value: entry.value + 10
-            }
-            : entry
-        )
-      );
-      setIteration(iteration + 1);
-    }
-  }, 500);
 
-  return (
-    <React.Fragment>
-      <h1>Racing Bar Chart</h1>
-      <RacingBarChart data={data} />
-      <button onClick={() => setStart(!start)}>
-        {start ? "Stop the race" : "Start the race!"}
-      </button>
-      <p>Iteration: {iteration}</p>
-    </React.Fragment>
-  );
+
+
+const App = () => {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: "AIzaSyAiGywbeQS-ZkjwHOrgNxOoRxJB3zr49VU"
+  })
+
+  const [map, setMap] = useState(null)
+
+  const onLoad = React.useCallback(function callback(map) {
+    const bounds = new window.google.maps.LatLngBounds(center);
+    map.fitBounds(bounds);
+    setMap(map)
+  }, [])
+
+  const onUnmount = useCallback(function callback(map) {
+    setMap(null)
+  }, [])
+
+
+  return isLoaded ? (
+    <div style={{ padding: '10%', marginLeft: "15%" }}>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={10}
+        onLoad={onLoad}
+        onUnmount={onUnmount}
+      >
+      </GoogleMap>
+    </div>
+
+  ) : <></>
 }
 
 export default App;
