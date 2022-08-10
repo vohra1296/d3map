@@ -1,32 +1,75 @@
-import React, { useState } from 'react'
-import data from './custom.geo.json'
-import GeoChart from './Components/Geochart'
+import React, { useState } from "react";
+import RacingBarChart from "./Components/RacingBarChart";
+import useInterval from "./useInterval";
 import "./App.css";
 
-const App = () => {
+const getRandomIndex = array => {
+  return Math.floor(array.length * Math.random());
+};
 
-  const [property, setProperty] = useState("pop_est");
+function App() {
+  const [iteration, setIteration] = useState(0);
+  const [start, setStart] = useState(false);
+  const [data, setData] = useState([
+    {
+      name: "alpha",
+      value: 10,
+      color: "#f4efd3"
+    },
+    {
+      name: "beta",
+      value: 15,
+      color: "#cccccc"
+    },
+    {
+      name: "charlie",
+      value: 20,
+      color: "#c2b0c9"
+    },
+    {
+      name: "delta",
+      value: 25,
+      color: "#9656a1"
+    },
+    {
+      name: "echo",
+      value: 30,
+      color: "#fa697c"
+    },
+    {
+      name: "foxtrot",
+      value: 35,
+      color: "#fcc169"
+    }
+  ]);
 
+  useInterval(() => {
+    if (start) {
+      const randomIndex = getRandomIndex(data);
+      setData(
+        data.map((entry, index) =>
+          index === randomIndex
+            ? {
+              ...entry,
+              value: entry.value + 10
+            }
+            : entry
+        )
+      );
+      setIteration(iteration + 1);
+    }
+  }, 500);
 
   return (
     <React.Fragment>
-      <div style={{ padding: '5% 10% 10% 30%', backgroundColor: 'lightsteelblue' }}>
-        <h2 style={{ marginLeft: '20%' }}> World Map with d3-Geo</h2>
-        <h2 style={{ marginLeft: '20%' }}>Select property to highlight</h2>
-        <select style={{ width: '60%' }} value={property} onChange={(e) => setProperty(e.target.value)}>
-          <option value='pop_est'>Population</option>
-          <option value='name_len'>Name Length</option>
-          <option value='gdp_md'>GDP</option>
-        </select>
-        <div style={{ marginTop: '5%', width: '70%' }}>
-          <GeoChart data={data} property={property} />
-        </div>
-
-
-      </div>
-
+      <h1>Racing Bar Chart</h1>
+      <RacingBarChart data={data} />
+      <button onClick={() => setStart(!start)}>
+        {start ? "Stop the race" : "Start the race!"}
+      </button>
+      <p>Iteration: {iteration}</p>
     </React.Fragment>
-  )
+  );
 }
 
-export default App
+export default App;
